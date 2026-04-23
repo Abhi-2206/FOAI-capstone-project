@@ -1,14 +1,7 @@
-import React, { useState, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { Suspense } from 'react';
+import { motion } from 'framer-motion';
 import {
   Sparkles,
-  Copy,
-  RefreshCcw,
-  Loader2,
-  FileText,
-  Image,
-  MessageSquare,
-  Share2,
   Zap,
   ArrowLeft,
   ArrowRight,
@@ -19,77 +12,12 @@ import {
   FileEdit,
   CheckCircle2,
   AlertTriangle,
+  FileText,
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import { generateContent } from '../services/api';
 import WorkflowAnimation from '../components/ui/WorkflowAnimation';
 
-// --- Result Card ---
-const ResultCard = ({ title, icon: Icon, content, color, onCopy }) => {
-  const colorMap = {
-    indigo: { bg: '#eef2ff', text: '#6366f1', border: '#e0e7ff' },
-    blue: { bg: '#eff6ff', text: '#3b82f6', border: '#dbeafe' },
-    pink: { bg: '#fdf2f8', text: '#ec4899', border: '#fce7f3' },
-    sky: { bg: '#f0f9ff', text: '#0ea5e9', border: '#e0f2fe' },
-  };
-  const c = colorMap[color] || colorMap.indigo;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="portal-result-card"
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e5e7eb',
-        borderRadius: '1.5rem',
-        padding: '1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        transition: 'all 0.3s ease',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: c.text }}>
-          <Icon size={18} />
-          <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{title}</span>
-        </div>
-        <button
-          onClick={onCopy}
-          style={{
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
-            background: '#f3f4f6',
-            border: '1px solid #e5e7eb',
-            color: '#6b7280',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
-          title="Copy"
-        >
-          <Copy size={14} />
-        </button>
-      </div>
-      <div style={{
-        flex: 1,
-        minHeight: '150px',
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-        borderRadius: '0.75rem',
-        padding: '1rem',
-        color: '#374151',
-        fontSize: '0.875rem',
-        lineHeight: 1.7,
-        overflowY: 'auto',
-        whiteSpace: 'pre-wrap',
-      }}>
-        {content}
-      </div>
-    </motion.div>
-  );
-};
 
 // --- Workflow Step Component ---
 const WorkflowStep = ({ icon: Icon, label, color, isLast }) => (
@@ -135,64 +63,9 @@ const WorkflowStep = ({ icon: Icon, label, color, isLast }) => (
 
 // --- Main Portal ---
 const TeamPortal = () => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [formData, setFormData] = useState({
-    topic: '',
-    audience: '',
-    platform: 'LinkedIn',
-    tone: ''
-  });
-  const [generatedResults, setGeneratedResults] = useState(null);
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScTo-ZELvdYppbRBxRITsI47AYbNepFrNVEwLi5DhZIdiONlQ/viewform?usp=dialog";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsGenerating(true);
 
-    try {
-      const response = await generateContent(formData);
-      setGeneratedResults(response);
-      setIsGenerating(false);
-      setShowResults(true);
-      toast.success('Content generated successfully!');
-    } catch (error) {
-      setIsGenerating(false);
-      toast.error('AI Synthesis Failed. Please try again.');
-    }
-  };
-
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard!');
-  };
-
-  const handleReset = () => {
-    setShowResults(false);
-    setGeneratedResults(null);
-    setFormData({ topic: '', audience: '', platform: 'LinkedIn', tone: '' });
-  };
-
-  const inputStyle = {
-    width: '100%',
-    background: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.75rem',
-    padding: '0.75rem 1rem',
-    color: '#1f2937',
-    fontSize: '0.875rem',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '0.65rem',
-    fontWeight: 800,
-    color: '#9ca3af',
-    textTransform: 'uppercase',
-    letterSpacing: '0.15em',
-    marginBottom: '0.5rem',
-  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)', fontFamily: "'Inter', 'DM Sans', sans-serif" }}>
@@ -407,240 +280,63 @@ const TeamPortal = () => {
           </div>
         </motion.div>
 
-        {/* Content Generator — Centered */}
+        {/* Content Generator Trigger */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ maxWidth: '640px', margin: '0 auto' }}
+          style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}
         >
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#1a1a1a', letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>
+          <div style={{ marginBottom: '2.5rem' }}>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1a1a1a', letterSpacing: '-0.04em', marginBottom: '0.75rem' }}>
               Content <span style={{ color: '#6366f1' }}>Generator</span>
             </h1>
-            <p style={{ color: '#9ca3af', fontSize: '0.95rem' }}>
-              Harness Groq Llama-3.1 to synthesize multi-platform content.
+            <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.6, maxWidth: '500px', margin: '0 auto' }}>
+              Harness Groq Llama-3.1 to synthesize multi-platform content. Click below to start the generation process.
             </p>
           </div>
 
-          {/* Form Card */}
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '1.5rem',
-            padding: '2rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-            marginBottom: '2rem',
-          }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1a1a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <Sparkles size={20} style={{ color: '#6366f1' }} />
-              Generation Parameters
-            </h3>
+          <motion.button
+            whileHover={{ scale: 1.02, translateY: -2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.open(GOOGLE_FORM_URL, '_blank')}
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              padding: '1.25rem',
+              borderRadius: '1.25rem',
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              color: 'white',
+              fontWeight: 800,
+              fontSize: '1.125rem',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              boxShadow: '0 12px 30px -10px rgba(99, 102, 241, 0.5)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <Sparkles size={22} />
+            Generate content
+          </motion.button>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={labelStyle}>Content Topic</label>
-                  <input
-                    type="text"
-                    required
-                    style={inputStyle}
-                    placeholder="e.g. Future of AI Automation"
-                    value={formData.topic}
-                    onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                  />
-                </div>
-                <div>
-                  <label style={labelStyle}>Target Audience</label>
-                  <input
-                    type="text"
-                    required
-                    style={inputStyle}
-                    placeholder="e.g. Tech Founders"
-                    value={formData.audience}
-                    onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={labelStyle}>Primary Platform</label>
-                  <select
-                    style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
-                    value={formData.platform}
-                    onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                  >
-                    <option>LinkedIn</option>
-                    <option>Instagram</option>
-                    <option>Twitter</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Tone of Voice</label>
-                  <input
-                    type="text"
-                    required
-                    style={inputStyle}
-                    placeholder="e.g. Professional, Witty"
-                    value={formData.tone}
-                    onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
-                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isGenerating}
-                style={{
-                  width: '100%',
-                  padding: '0.875rem',
-                  borderRadius: '0.75rem',
-                  background: isGenerating ? '#a5b4fc' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  border: 'none',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  marginTop: '0.5rem',
-                  transition: 'all 0.2s',
-                  boxShadow: isGenerating ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)',
-                }}
-              >
-                {isGenerating ? (
-                  <><Loader2 size={18} className="animate-spin" /> Synthesizing...</>
-                ) : (
-                  <><Sparkles size={18} /> Generate Content</>
-                )}
-              </button>
-
-              {showResults && (
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.75rem',
-                    background: '#f3f4f6',
-                    color: '#6b7280',
-                    fontWeight: 700,
-                    fontSize: '0.8rem',
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <RefreshCcw size={14} /> Reset & Generate New
-                </button>
-              )}
-            </form>
+          <div style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9ca3af' }}>
+              <CheckCircle2 size={16} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Multi-Platform</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9ca3af' }}>
+              <Zap size={16} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Instant AI</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9ca3af' }}>
+              <FileText size={16} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Google Doc Export</span>
+            </div>
           </div>
-
-          {/* Results */}
-          <AnimatePresence mode="wait">
-            {isGenerating && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  minHeight: '300px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  padding: '2.5rem',
-                  background: '#eef2ff',
-                  border: '1px solid #e0e7ff',
-                  borderRadius: '1.5rem',
-                }}
-              >
-                <div style={{ position: 'relative', marginBottom: '2rem' }}>
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '50%',
-                    border: '4px solid #e0e7ff',
-                    borderTopColor: '#6366f1',
-                    animation: 'spin 1s linear infinite',
-                  }} />
-                </div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '0.5rem' }}>AI is generating your content...</h3>
-                <p style={{ color: '#6366f1', fontFamily: 'monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-                  Accessing Groq Llama-3.1-8b-instant
-                </p>
-
-                <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {['Analyzing Topic', 'Structuring Blog Post', 'Optimizing Social Hooks', 'Finalizing Output'].map((step, i) => (
-                    <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{
-                        width: '6px', height: '6px', borderRadius: '50%',
-                        background: i < 2 ? '#6366f1' : '#d1d5db',
-                        boxShadow: i < 2 ? '0 0 8px rgba(99,102,241,0.5)' : 'none',
-                      }} />
-                      <span style={{
-                        fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em',
-                        color: i < 2 ? '#6366f1' : '#9ca3af',
-                      }}>{step}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {showResults && generatedResults && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}
-              >
-                <ResultCard
-                  title="Blog Post"
-                  icon={FileText}
-                  content={generatedResults?.blog}
-                  color="indigo"
-                  onCopy={() => handleCopy(generatedResults?.blog)}
-                />
-                <ResultCard
-                  title="LinkedIn Caption"
-                  icon={Share2}
-                  content={generatedResults?.linkedin}
-                  color="blue"
-                  onCopy={() => handleCopy(generatedResults?.linkedin)}
-                />
-                <ResultCard
-                  title="Instagram Caption"
-                  icon={Image}
-                  content={generatedResults?.instagram}
-                  color="pink"
-                  onCopy={() => handleCopy(generatedResults?.instagram)}
-                />
-                <ResultCard
-                  title="Twitter Caption"
-                  icon={MessageSquare}
-                  content={generatedResults?.twitter}
-                  color="sky"
-                  onCopy={() => handleCopy(generatedResults?.twitter)}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
       </main>
 
