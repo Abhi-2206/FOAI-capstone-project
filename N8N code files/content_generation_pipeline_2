@@ -1,0 +1,182 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "LeadGen AI — Content Request Form",
+        "formDescription": "Submit your weekly content requirements and our AI system will generate high-quality blog posts and social media content tailored to your needs.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Content Topic"
+            },
+            {
+              "fieldLabel": "Target Audience"
+            },
+            {
+              "fieldLabel": "Platform",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "LinkedIn"
+                  },
+                  {
+                    "option": "Instagram"
+                  },
+                  {
+                    "option": "Twitter"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Tone"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -656,
+        -224
+      ],
+      "id": "7e9dd3c5-9967-4ece-8fca-209ca6516a1f",
+      "name": "On form submission",
+      "webhookId": "9a0718e4-218e-488a-93a9-b1bd30daff00"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional content creator for a marketing agency.\n\nIMPORTANT:\n- Return ONLY valid JSON\n- No explanation\n- No extra text\n- No markdown (no ```json)\n\nWrite ALL content in a SINGLE LINE (no line breaks)\n\nINPUT:\nTopic: {{ $json['Content Topic'] }}\nAudience: {{ $json['Target Audience'] }}\nPlatform: {{ $json['Platform'] }}\nTone: {{ $json['Tone'] }}\n\nTASK:\n1. short paragraph (max 120 words) ✅\n2. Write a LinkedIn caption\n3. Write an Instagram caption\n4. Write a Twitter caption\n\nOUTPUT FORMAT (STRICT):\n{\n  \"blog_post\": \"string\",\n  \"linkedin_caption\": \"string\",\n  \"instagram_caption\": \"string\",\n  \"twitter_caption\": \"string\"\n}\n\nRULES:\n- All values must be strings\n- Escape double quotes using \\\"\n- Keep text simple (no emojis, no special symbols)\n- Ensure JSON is valid and parsable\n- Do not miss any key",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -448,
+        -224
+      ],
+      "id": "ebb5c153-86e1-40c5-b10c-b5e682d18bf5",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -48
+      ],
+      "id": "2e348b68-5558-49b8-a07e-9180e2f0a1a7",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "uHQkmMGVTTFIVNkz",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/1y9naZudKUaO4IrdvyW5_K2A9TQeu-ud1QNK0c2ckO0g/edit?tab=t.0",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=🚀 BLOG POST\n\n{{ $json.blog_post }}\n\n\n━━━━━━━━━━━━━━━━━━━━\n\n💼 LINKEDIN CAPTION\n\n{{ $json.linkedin_caption }}\n\n\n━━━━━━━━━━━━━━━━━━━━\n\n📸 INSTAGRAM CAPTION\n\n{{ $json.instagram_caption }}\n\n\n━━━━━━━━━━━━━━━━━━━━\n\n🐦 TWITTER CAPTION\n\n{{ $json.twitter_caption }}\n\n\n━━━━━━━━━━━━━━━━━━━━\n⏱ Generated at: {{ $now }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        128,
+        -224
+      ],
+      "id": "5ad21e5f-b282-46fd-817a-de3e5c0bee59",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "2yLWWz2bRCr3Nvcd",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.text;\n\ntry {\n  // Step 1: Extract JSON part safely\n  const jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);\n\n  if (!jsonMatch) {\n    throw new Error(\"No JSON found\");\n  }\n\n  let cleaned = jsonMatch[0];\n\n  // Step 2: Fix common issues\n  cleaned = cleaned\n    .replace(/\\n/g, \" \")        // remove newlines\n    .replace(/\\r/g, \" \")\n    .replace(/\\t/g, \" \")\n    .replace(/\\\\/g, \"\")        // remove escape slashes\n    .replace(/\"\\s+\"/g, '\" \"')  // fix spacing\n\n  const parsed = JSON.parse(cleaned);\n\n  return [\n    {\n      json: {\n        blog_post: parsed.blog_post || \"\",\n        linkedin_caption: parsed.linkedin_caption || \"\",\n        instagram_caption: parsed.instagram_caption || \"\",\n        twitter_caption: parsed.twitter_caption || \"\"\n      }\n    }\n  ];\n\n} catch (e) {\n  return [\n    {\n      json: {\n        blog_post: \"Fallback content\",\n        linkedin_caption: \"Fallback content\",\n        instagram_caption: \"Fallback content\",\n        twitter_caption: \"Fallback content\",\n        debug: raw\n      }\n    }\n  ];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -224
+      ],
+      "id": "f0ae155a-662a-418d-b150-75f4dfba10fd",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "44735c6b9919b88d7a42559f2d91f1118de98a59edc51036519ea835c7746cb1"
+  }
+}
