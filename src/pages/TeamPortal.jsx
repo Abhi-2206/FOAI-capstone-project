@@ -15,7 +15,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import WorkflowAnimation from '../components/ui/WorkflowAnimation';
+import WorkflowAnimation from '../components/ui/WorkflowAnimation.jsx';
 
 
 

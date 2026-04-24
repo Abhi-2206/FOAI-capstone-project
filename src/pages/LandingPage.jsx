@@ -26,6 +26,7 @@ import {
   Activity,
   Bot
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Hero3D from '../components/ui/Hero3D';
 import About3D from '../components/ui/About3D';
 import Globe3D from '../components/ui/Globe3D';
@@ -124,14 +125,17 @@ const Nav = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-6">
-          <motion.a
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            href="/portal"
-            className="text-[10px] font-black text-[#1a1a1a]/40 hover:text-blue-600 uppercase tracking-widest transition-colors"
           >
-            Team Portal
-          </motion.a>
+            <Link
+              to="/portal"
+              className="text-[10px] font-black text-[#1a1a1a]/40 hover:text-blue-600 uppercase tracking-widest transition-colors"
+            >
+              Team Portal
+            </Link>
+          </motion.div>
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
